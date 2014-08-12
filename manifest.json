@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "TrezorHID",
+  "short_name": "TrezorHID",
+  "description": "Description for TrezorHID",
+
+  "version": "0.0.1.0",
+
+  "icons": {
+    "16": "assets/icon_16.png",
+    "128": "assets/icon_128.png"
+  },
+
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+
+  "permissions": [
+    "hid",
+		{
+			"usbDevices": [
+				{ "vendorId": 21324, "productId": 1 }
+ 			]
+		}
+	]
+}
