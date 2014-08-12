@@ -1,67 +1,62 @@
 var connectionId;
 
-function logIfError() {
-  if (chrome.runtime.lastError)
-    console.error("ERROR:", chrome.runtime.lastError.message);
-  else
-    console.log("NO ERROR");
+function getDevice() {
+  return new Promise(function(resolve, reject) {
+    chrome.hid.getDevices(
+      {vendorId: 0x534c, productId: 0x0001},
+      function(devices) {
+        if (!devices || devices.length == 0) {
+          reject("No device found.");
+        } else {
+          resolve(devices[0].deviceId);
+        }
+      });
+  });
 }
 
 function connect(deviceId) {
   return new Promise(function(resolve, reject) {
     chrome.hid.connect(deviceId, function(connection) {
-      connectionId = connection.connectionId;
-      console.log("Have connection ID", connectionId);
-      logIfError();
-      resolve();
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        resolve(connection.connectionId);
+      }
     });
   });
 }
 
-function padArrayBuffer(arrayBuffer, size) {
-  var newBuf = new Uint8Array(size);
-  for (i = 0; i < arrayBuffer.length; ++i) {
-    newBuf[i] = arrayBuffer[i];
-  }
-  return newBuf;
+function padByteArray(sequence, size) {
+  var newArray = new Uint8Array(size);
+  newArray.set(sequence);
+  return newArray;
 }
 
 function sendFeatureReport(reportId, value) {
   return new Promise(function(resolve, reject) {
-    var data = new Uint8Array([value]);
-    data = padArrayBuffer(data, 1);
+    var data = padByteArray([value], 1);
     console.log("sending feature report", reportId, value, data, data.length);
     chrome.hid.sendFeatureReport(connectionId, reportId,
       data.buffer, function() {
         console.log("sent feature report", reportId);
-        logIfError();
+        // Ignore failure because the device is bad at HID.
         resolve();
       });
   });
 }
 
-function receiveFeatureReport(reportId) {
-  return new Promise(function(resolve, reject) {
-    console.log("and now going to receive FR", connectionId, reportId);
-    chrome.hid.receiveFeatureReport(connectionId, reportId, function(data) {
-      console.log("received featureReport", data);
-      logIfError();
-      resolve();
-    });
-  });
-}
-
-
 function send(reportId, dataArray) {
   return new Promise(function(resolve, reject) {
-    var data = new Uint8Array(dataArray);
-    data = padArrayBuffer(data, reportId);  // same as 63?
+    var data = padByteArray(dataArray, 63);
     console.log("sending data", reportId, data, data.length);
     chrome.hid.send(connectionId, reportId,
       data.buffer, function() {
-        console.log("sent data", reportId);
-        logIfError();
-        resolve();
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message);
+        } else {
+          console.log("sent data", reportId, data);
+          resolve();
+        }
       });
   });
 }
@@ -70,9 +65,12 @@ function receive() {
   return new Promise(function(resolve, reject) {
     console.log("and now going to receive", connectionId);
     chrome.hid.receive(connectionId, function(reportId, data) {
-      console.log("received:", reportId, data);
-      logIfError();
-      resolve();
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        console.log("received:", reportId, new Uint8Array(data));
+        resolve({id: reportId, data: data});
+      }
     });
   });
 }
@@ -80,16 +78,13 @@ function receive() {
 function disconnect() {
   return new Promise(function(resolve, reject) {
     chrome.hid.disconnect(connectionId, function() {
-      console.log("closed");
-      logIfError();
-      resolve();
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        console.log("closed");
+        resolve();
+      }
     });
-  });
-}
-
-function delay(seconds) {
-  return new Promise(function(resolve, reject) {
-    window.setTimeout(resolve, seconds * 1000);
   });
 }
 
@@ -105,35 +100,28 @@ var sendDataAddress = [0x23, 0x23, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x21,
 window.onload = function() {
   document.querySelector('#greeting').innerText =
     'Hello, World! It is ' + new Date();
-  chrome.hid.getDevices(
-    {vendorId: 0x534c, productId: 0x0001},
-    function(devices) {
-      console.log(devices);
-      var deviceId = devices[0].deviceId;
-      console.log("connecting to device ID", deviceId);
-      connect(deviceId)
-        .then(function(response) {
-          return sendFeatureReport(0x41, 0x01);
-        }).then(function(response) {
-          return receiveFeatureReport(0x41);
-        }).then(function(response) {
-          return sendFeatureReport(0x43, 0x03);
-        }).then(function(response) {
-          return receiveFeatureReport(0x41);
-        }).then(function(response) {
-          return send(63, sendDataInit);
-        }).then(function(response) {
-          return delay(1);
-        }).then(function(response) {
-          return receive();
-        }).then(function(response) {
-          return send(63, sendDataAddress);
-        }).then(function(response) {
-          return delay(5);
-        }).then(function(response) {
-          return receive();
-        }).then(function(response) {
-          return disconnect();
-        });
+  getDevice()
+    .then(function(deviceId) {
+      return connect(deviceId);
+    }).then(function(id) {
+      console.log("Have connection ID", id);
+      connectionId = id;
+      return sendFeatureReport(0x41, 0x01);
+    }).then(function() {
+      return sendFeatureReport(0x43, 0x03);
+    }).then(function() {
+      return send(63, sendDataInit);
+    }).then(function() {
+      return receive();
+    }).then(function(report) {
+      console.log("Received:", report.id, new Uint8Array(report.data));
+      return send(63, sendDataAddress);
+    }).then(function() {
+      return receive();
+    }).then(function(report) {
+      console.log("Received:", report.id, new Uint8Array(report.data));
+      return disconnect();
+    }).catch(function(reason) {
+      console.error(reason);
     });
 };
