@@ -32,6 +32,25 @@ function padByteArray(sequence, size) {
   return newArray;
 }
 
+// Format is (big-endian)...
+//  - ASCII ##
+//  - unsigned short, message type (protocol buffer index)
+//  - unsigned long, message length
+//  - the message (if any)
+function serializeMessageForTransport(msg, msg_type) {
+  var msg_ab = new Uint8Array(msg.encodeAB());
+  var header_size = 1 + 1 + 4 + 2;
+  var full_size = header_size + msg_ab.length;
+  var msg_full = new Uint8Array(header_size + full_size);
+  msg_full.set(msg_ab, header_size);
+
+  msg_full[0] = 0x23;
+  msg_full[1] = 0x23;
+  msg_full[3] = msg_type;  // TODO: this should be big-endian short
+  msg_full[7] = msg_ab.length;  // TODO: this should be big-endian long
+  return msg_full;
+}
+
 function sendFeatureReport(reportId, value) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray([value], 1);
@@ -45,9 +64,9 @@ function sendFeatureReport(reportId, value) {
   });
 }
 
-function send(reportId, dataArray) {
+function send(reportId, arrayBuffer) {
   return new Promise(function(resolve, reject) {
-    var data = padByteArray(dataArray, 63);
+    var data = padByteArray(arrayBuffer, 63);
     console.log("sending data", reportId, data, data.length);
     chrome.hid.send(connectionId, reportId,
       data.buffer, function() {
@@ -102,18 +121,13 @@ function str2ab(str) {
   return buf;
 }
 
-var sendDataInit = [0x23, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-
-var sendDataAddress = [0x23, 0x23, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x21,
-                       0x08, 0xac, 0x80, 0x80, 0x80, 0x08, 0x08, 0x80,
-                       0x80, 0x80, 0x80, 0x08, 0x08, 0x80, 0x80, 0x80,
-                       0x80, 0x08, 0x08, 0x00, 0x08, 0x00, 0x12, 0x07,
-                       0x42, 0x69, 0x74, 0x63, 0x6f, 0x69, 0x6e, 0x18,
-                       0x00];
-
 window.onload = function() {
   document.querySelector('#greeting').innerText =
     'Hello, World! It is ' + new Date();
+
+  var ProtoBuf = dcodeIO.ProtoBuf;
+  var builder = ProtoBuf.newBuilder();
+
   getDevice()
     .then(function(deviceId) {
       return connect(deviceId);
@@ -124,12 +138,16 @@ window.onload = function() {
     }).then(function() {
       return sendFeatureReport(0x43, 0x03);
     }).then(function() {
-      return send(63, sendDataInit);
+      return send(
+        63,
+        serializeMessageForTransport(new _root.Initialize(), 0));
     }).then(function() {
       return receive();
     }).then(function(report) {
       console.log("Received:", report.id, ab2str(report.data));
-      return send(63, sendDataAddress);
+      return send(
+        63,
+        serializeMessageForTransport(new _root.GetAddress(0), 29));
     }).then(function() {
       return receive();
     }).then(function(report) {
