@@ -149,6 +149,9 @@ window.onload = function() {
         63,
         serializeMessageForTransport(new _root.GetAddress(0), 29));
     }).then(function() {
+      // TODO: we'll receive the same format back: message M, length N, and we
+      // need to read consecutive reports until we get N unwrapped bytes.
+      // Then we'll instantiate PB #M and ask it to decode the bytes.
       return receive();
     }).then(function(report) {
       console.log("Received:", report.id, ab2str(report.data));
