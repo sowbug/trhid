@@ -88,6 +88,20 @@ function disconnect() {
   });
 }
 
+// http://stackoverflow.com/a/11058858
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+function str2ab(str) {
+  var buf = new ArrayBuffer(str.length);
+  var bufView = new Uint8Array(buf);
+  for (var i=0, strLen=str.length; i<strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return buf;
+}
+
 var sendDataInit = [0x23, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
 var sendDataAddress = [0x23, 0x23, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x21,
@@ -114,12 +128,12 @@ window.onload = function() {
     }).then(function() {
       return receive();
     }).then(function(report) {
-      console.log("Received:", report.id, new Uint8Array(report.data));
+      console.log("Received:", report.id, ab2str(report.data));
       return send(63, sendDataAddress);
     }).then(function() {
       return receive();
     }).then(function(report) {
-      console.log("Received:", report.id, new Uint8Array(report.data));
+      console.log("Received:", report.id, ab2str(report.data));
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
