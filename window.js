@@ -54,10 +54,8 @@ function serializeMessageForTransport(msg, msg_type) {
 function sendFeatureReport(reportId, value) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray([value], 1);
-    console.log("sending feature report", reportId, value, data, data.length);
     chrome.hid.sendFeatureReport(connectionId, reportId,
       data.buffer, function() {
-        console.log("sent feature report", reportId);
         // Ignore failure because the device is bad at HID.
         resolve();
       });
@@ -67,13 +65,11 @@ function sendFeatureReport(reportId, value) {
 function send(reportId, arrayBuffer) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray(arrayBuffer, 63);
-    console.log("sending data", reportId, data, data.length);
     chrome.hid.send(connectionId, reportId,
       data.buffer, function() {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message);
         } else {
-          console.log("sent data", reportId, data);
           resolve();
         }
       });
@@ -82,12 +78,10 @@ function send(reportId, arrayBuffer) {
 
 function receive() {
   return new Promise(function(resolve, reject) {
-    console.log("and now going to receive", connectionId);
     chrome.hid.receive(connectionId, function(reportId, data) {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
       } else {
-        console.log("received:", reportId, new Uint8Array(data));
         resolve({id: reportId, data: data});
       }
     });
@@ -127,6 +121,7 @@ window.onload = function() {
 
   var ProtoBuf = dcodeIO.ProtoBuf;
   var builder = ProtoBuf.newBuilder();
+  var seen;
 
   getDevice()
     .then(function(deviceId) {
@@ -144,17 +139,30 @@ window.onload = function() {
     }).then(function() {
       return receive();
     }).then(function(report) {
-      console.log("Received:", report.id, ab2str(report.data));
+      seen = dcodeIO.ByteBuffer.concat([report.data]);
+    }).then(function() {
+      return receive();
+    }).then(function(report) {
+      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
+    }).then(function() {
+      return receive();
+    }).then(function(report) {
+      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
+    }).then(function() {
+      return receive();
+    }).then(function(report) {
+      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
+      console.log("Raw:", ab2str(seen.buffer));
+      //console.log("Received:", _root.Features.decode(seen));
       return send(
         63,
         serializeMessageForTransport(new _root.GetAddress(0), 29));
     }).then(function() {
-      // TODO: we'll receive the same format back: message M, length N, and we
-      // need to read consecutive reports until we get N unwrapped bytes.
-      // Then we'll instantiate PB #M and ask it to decode the bytes.
       return receive();
     }).then(function(report) {
-      console.log("Received:", report.id, ab2str(report.data));
+      seen = dcodeIO.ByteBuffer.concat([report.data])
+      console.log("Raw:", ab2str(seen.buffer));
+      //console.log("Received:", _root.Address.decode(seen));
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
