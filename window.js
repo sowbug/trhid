@@ -65,8 +65,11 @@ function parseHeaders(first_msg) {
 function sendFeatureReport(reportId, value) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray([value], 1);
-    chrome.hid.sendFeatureReport(connectionId, reportId,
-      data.buffer, function() {
+    chrome.hid.sendFeatureReport(
+      connectionId,
+      reportId,
+      data.buffer,
+      function() {
         // Ignore failure because the device is bad at HID.
         resolve();
       });
@@ -77,13 +80,13 @@ function send(reportId, arrayBuffer) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray(arrayBuffer, 63);
     chrome.hid.send(connectionId, reportId,
-      data.buffer, function() {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError.message);
-        } else {
-          resolve();
-        }
-      });
+                    data.buffer, function() {
+                      if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError.message);
+                      } else {
+                        resolve();
+                      }
+                    });
   });
 }
 
@@ -126,14 +129,15 @@ function str2ab(str) {
   return buf;
 }
 
-window.onload = function() {
-  document.querySelector('#greeting').innerText =
-    'Hello, World! It is ' + new Date();
-
+function queryFirstConnectedDevice() {
   var ProtoBuf = dcodeIO.ProtoBuf;
   var builder = ProtoBuf.newBuilder();
   var bytes_to_read;
   var seen;
+
+  document.querySelector("#label").innerText = "";
+  document.querySelector("#device_id").innerText = "";
+  document.querySelector("#address").innerText = "looking...";
 
   getDevice()
     .then(function(deviceId) {
@@ -170,7 +174,10 @@ window.onload = function() {
     }).then(function(report) {
       seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
       seen = seen.slice(0, bytes_to_read);
-      console.log("Received:", _root.Features.decode(seen));
+      var features = _root.Features.decode(seen);
+      console.log("Received:", features);
+      document.querySelector("#label").innerText = features.label;
+      document.querySelector("#device_id").innerText = features.device_id;
       return send(
         63,
         serializeMessageForTransport(new _root.GetAddress(
@@ -185,9 +192,17 @@ window.onload = function() {
       bytes_to_read = result[1];
       seen = dcodeIO.ByteBuffer.concat([result[2]]);
       seen = seen.slice(0, bytes_to_read);
-      console.log("Received:", _root.Address.decode(seen));
+      var address = _root.Address.decode(seen);
+      document.querySelector("#address").innerText = address.address;
+      console.log("Received:", address);
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
     });
+}
+
+window.onload = function() {
+  document.querySelector("#query").addEventListener("click",
+                                                    queryFirstConnectedDevice);
+  queryFirstConnectedDevice();
 };
