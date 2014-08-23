@@ -173,7 +173,8 @@ window.onload = function() {
       console.log("Received:", _root.Features.decode(seen));
       return send(
         63,
-        serializeMessageForTransport(new _root.GetAddress(0), 29));
+        serializeMessageForTransport(new _root.GetAddress(
+          [0x80000000 | 44, 0x80000000, 0x80000000, 0, 0]), 29));
     }).then(function() {
       return receive();
     }).then(function(report) {
