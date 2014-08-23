@@ -41,14 +41,25 @@ function serializeMessageForTransport(msg, msg_type) {
   var msg_ab = new Uint8Array(msg.encodeAB());
   var header_size = 1 + 1 + 4 + 2;
   var full_size = header_size + msg_ab.length;
-  var msg_full = new Uint8Array(header_size + full_size);
-  msg_full.set(msg_ab, header_size);
+  var msg_full = new dcodeIO.ByteBuffer(header_size + full_size);
+  msg_full.writeByte(0x23);
+  msg_full.writeByte(0x23);
+  msg_full.writeUint16(msg_type);
+  msg_full.writeUint32(msg_ab.length);
+  msg_full.append(msg_ab);
+  return new Uint8Array(msg_full.buffer);
+}
 
-  msg_full[0] = 0x23;
-  msg_full[1] = 0x23;
-  msg_full[3] = msg_type;  // TODO: this should be big-endian short
-  msg_full[7] = msg_ab.length;  // TODO: this should be big-endian long
-  return msg_full;
+function parseHeaders(first_msg) {
+  var msg = dcodeIO.ByteBuffer.concat([first_msg]);
+  var sharp1 = msg.readByte();
+  var sharp2 = msg.readByte();
+  if (sharp1 != 0x23 || sharp2 != 0x23) {
+    return null;
+  }
+  var msg_type = msg.readUint16();
+  var msg_length = msg.readUint32();
+  return [msg_type, msg_length, msg.slice()];
 }
 
 function sendFeatureReport(reportId, value) {
@@ -121,6 +132,7 @@ window.onload = function() {
 
   var ProtoBuf = dcodeIO.ProtoBuf;
   var builder = ProtoBuf.newBuilder();
+  var bytes_to_read;
   var seen;
 
   getDevice()
@@ -139,7 +151,12 @@ window.onload = function() {
     }).then(function() {
       return receive();
     }).then(function(report) {
-      seen = dcodeIO.ByteBuffer.concat([report.data]);
+      var result = parseHeaders(report.data);
+      if (result == null) {
+        reject("Failed to parse headers.");
+      }
+      bytes_to_read = result[1];
+      seen = dcodeIO.ByteBuffer.concat([result[2]]);
     }).then(function() {
       return receive();
     }).then(function(report) {
@@ -152,17 +169,23 @@ window.onload = function() {
       return receive();
     }).then(function(report) {
       seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
-      console.log("Raw:", ab2str(seen.buffer));
-      //console.log("Received:", _root.Features.decode(seen));
+      seen = seen.slice(0, bytes_to_read);
+      console.log("Received:", _root.Features.decode(seen));
       return send(
         63,
-        serializeMessageForTransport(new _root.GetAddress(0), 29));
+        serializeMessageForTransport(new _root.GetAddress(
+          [0x80000000 | 44, 0x80000000, 0x80000000, 0, 0]), 29));
     }).then(function() {
       return receive();
     }).then(function(report) {
-      seen = dcodeIO.ByteBuffer.concat([report.data])
-      console.log("Raw:", ab2str(seen.buffer));
-      //console.log("Received:", _root.Address.decode(seen));
+      var result = parseHeaders(report.data);
+      if (result == null) {
+        reject("Failed to parse headers.");
+      }
+      bytes_to_read = result[1];
+      seen = dcodeIO.ByteBuffer.concat([result[2]]);
+      seen = seen.slice(0, bytes_to_read);
+      console.log("Received:", _root.Address.decode(seen));
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
