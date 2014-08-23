@@ -50,18 +50,6 @@ function serializeMessageForTransport(msg, msg_type) {
   return new Uint8Array(msg_full.buffer);
 }
 
-function parseHeaders(first_msg) {
-  var msg = dcodeIO.ByteBuffer.concat([first_msg]);
-  var sharp1 = msg.readByte();
-  var sharp2 = msg.readByte();
-  if (sharp1 != 0x23 || sharp2 != 0x23) {
-    return null;
-  }
-  var msg_type = msg.readUint16();
-  var msg_length = msg.readUint32();
-  return [msg_type, msg_length, msg.slice()];
-}
-
 function sendFeatureReport(reportId, value) {
   return new Promise(function(resolve, reject) {
     var data = padByteArray([value], 1);
@@ -97,6 +85,61 @@ function receive() {
         reject(chrome.runtime.lastError.message);
       } else {
         resolve({id: reportId, data: data});
+      }
+    });
+  });
+}
+
+function receiveMoreOfMessageBody(messageBuffer, messageSize) {
+  return new Promise(function(resolve, reject) {
+    if (messageBuffer.offset >= messageSize) {
+      resolve(messageBuffer);
+    } else {
+      receive().then(function(report) {
+        if (report == null || report.data == null) {
+          reject("received no data from device");
+        } else {
+          messageBuffer.append(report.data);
+          receiveMoreOfMessageBody(messageBuffer,
+                                   messageSize).then(function(message) {
+                                     resolve(message);
+                                   });
+        }
+      });
+    }
+  });
+}
+
+function parseHeadersAndCreateByteBuffer(first_msg) {
+  var msg = dcodeIO.ByteBuffer.concat([first_msg]);
+  var original_length = msg.limit;
+
+  var sharp1 = msg.readByte();
+  var sharp2 = msg.readByte();
+  if (sharp1 != 0x23 || sharp2 != 0x23) {
+    console.error("Didn't receive expected header signature.");
+    return null;
+  }
+  var messageType = msg.readUint16();
+  var messageLength = msg.readUint32();
+  var messageBuffer = new dcodeIO.ByteBuffer(messageLength);
+  messageBuffer.append(msg);
+
+  return [messageType, messageLength, messageBuffer];
+}
+
+function receiveMessage() {
+  return new Promise(function(resolve, reject) {
+    receive().then(function(report) {
+      var headers = parseHeadersAndCreateByteBuffer(report.data);
+      if (headers == null) {
+        reject("Failed to parse headers.");
+      } else {
+        receiveMoreOfMessageBody(headers[2], headers[1])
+          .then(function(byteBuffer) {
+            byteBuffer.reset();
+            resolve(byteBuffer.toArrayBuffer());
+          });
       }
     });
   });
@@ -153,29 +196,9 @@ function queryFirstConnectedDevice() {
         63,
         serializeMessageForTransport(new _root.Initialize(), 0));
     }).then(function() {
-      return receive();
-    }).then(function(report) {
-      var result = parseHeaders(report.data);
-      if (result == null) {
-        reject("Failed to parse headers.");
-      }
-      bytes_to_read = result[1];
-      seen = dcodeIO.ByteBuffer.concat([result[2]]);
-    }).then(function() {
-      return receive();
-    }).then(function(report) {
-      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
-    }).then(function() {
-      return receive();
-    }).then(function(report) {
-      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
-    }).then(function() {
-      return receive();
-    }).then(function(report) {
-      seen = dcodeIO.ByteBuffer.concat([seen, report.data]);
-      seen = seen.slice(0, bytes_to_read);
-      var features = _root.Features.decode(seen);
-      console.log("Received:", features);
+      return receiveMessage();
+    }).then(function(message) {
+      var features = _root.Features.decode(message);
       document.querySelector("#label").innerText = features.label;
       document.querySelector("#device_id").innerText = features.device_id;
       return send(
@@ -183,18 +206,10 @@ function queryFirstConnectedDevice() {
         serializeMessageForTransport(new _root.GetAddress(
           [0x80000000 | 44, 0x80000000, 0x80000000, 0, 0]), 29));
     }).then(function() {
-      return receive();
-    }).then(function(report) {
-      var result = parseHeaders(report.data);
-      if (result == null) {
-        reject("Failed to parse headers.");
-      }
-      bytes_to_read = result[1];
-      seen = dcodeIO.ByteBuffer.concat([result[2]]);
-      seen = seen.slice(0, bytes_to_read);
-      var address = _root.Address.decode(seen);
+      return receiveMessage();
+    }).then(function(message) {
+      var address = _root.Address.decode(message);
       document.querySelector("#address").innerText = address.address;
-      console.log("Received:", address);
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
