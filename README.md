@@ -14,7 +14,8 @@ Development requirements
   * `sudo npm install -g vulcanize`
 
 Build with `make`. Yes, it sucks that even web development these days
-needs a build step.
+needs a build step. To test the app, go to "Load unpacked
+extension..." in chrome://extensions and then pick the ./out/zip directory.
 
 To generate the protobuf JS file:
 
