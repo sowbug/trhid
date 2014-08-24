@@ -1,12 +1,11 @@
 {
+
+  "name": "PRODUCTNAME",
+  "description": "Proof-of-concept Chrome App for Trezor (not affiliated with manufacturer of Trezor)",
+  "version": "MAJOR.MINOR.BUILD.PATCH",
+
   "manifest_version": 2,
-  "name": "Trezor Proof of Concept",
-  "short_name": "TrezorPOC",
-  "description": "Proof of concept of Chrome App that communicates with Trezor (not affiliated with Trezor manufacturer)",
-
   "minimum_chrome_version": "38.0.2125.7",
-
-  "version": "0.0.1.0",
 
   "icons": {
     "16": "assets/icon_16.png",
@@ -21,10 +20,10 @@
 
   "permissions": [
     "hid",
-		{
-			"usbDevices": [
-				{ "vendorId": 21324, "productId": 1 }
- 			]
-		}
-	]
+    {
+      "usbDevices": [
+        { "vendorId": 21324, "productId": 1 }
+       ]
+    }
+  ]
 }
