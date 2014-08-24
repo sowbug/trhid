@@ -164,15 +164,15 @@ function disconnect() {
   });
 }
 
+function clearFields() {
+  document.querySelector("#label").innerHTML = "[Device disconnected]";
+  document.querySelector("#device_id").value = "";
+  document.querySelector("#address").value = "";
+}
+
 function queryFirstConnectedDevice() {
   var ProtoBuf = dcodeIO.ProtoBuf;
   var builder = ProtoBuf.newBuilder();
-  var bytes_to_read;
-  var seen;
-
-  document.querySelector("#label").innerText = "";
-  document.querySelector("#device_id").innerText = "";
-  document.querySelector("#address").innerText = "looking...";
 
   getDevice()
     .then(function(deviceId) {
@@ -191,8 +191,8 @@ function queryFirstConnectedDevice() {
       return receiveMessage();
     }).then(function(message) {
       var features = _root.Features.decode(message);
-      document.querySelector("#label").innerText = features.label;
-      document.querySelector("#device_id").innerText = features.device_id;
+      document.querySelector("#label").innerHTML = features.label;
+      document.querySelector("#device_id").value = features.device_id;
       return send(
         63,
         serializeMessageForTransport(new _root.GetAddress(
@@ -201,7 +201,7 @@ function queryFirstConnectedDevice() {
       return receiveMessage();
     }).then(function(message) {
       var address = _root.Address.decode(message);
-      document.querySelector("#address").innerText = address.address;
+      document.querySelector("#address").value = address.address;
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
@@ -210,7 +210,10 @@ function queryFirstConnectedDevice() {
 }
 
 window.onload = function() {
-  document.querySelector("#query").addEventListener("click",
-                                                    queryFirstConnectedDevice);
+  document.querySelector("#query-button").addEventListener(
+    "click",
+    queryFirstConnectedDevice);
+
+  clearFields();
   queryFirstConnectedDevice();
 };

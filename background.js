@@ -6,7 +6,7 @@
  */
 chrome.app.runtime.onLaunched.addListener(function() {
   chrome.app.window.create(
-    "window.html",
+    "window-build.html",
     {
       id: "mainWindow"
     }

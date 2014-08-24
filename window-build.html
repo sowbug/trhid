@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TrezorHID</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="components/platform/platform.js"></script>
+
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-header-panel` contains a header section and a content panel section.
+
+__Important:__ The `core-header-panel` will not display if its parent does not have a height.
+
+Using [layout attributes](http://www.polymer-project.org/docs/polymer/layout-attrs.html), you can easily make the `core-header-panel` fill the screen
+
+    <body fullbleed layout vertical>
+      <core-header-panel flex>
+        <core-toolbar>
+          <div>Hello World!</div>
+        </core-toolbar>
+      </core-header-panel>
+    </body>
+
+or, if you would prefer to do it in CSS, just give `html`, `body`, and `core-header-panel` a height of 100%:
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    core-header-panel {
+      height: 100%;
+    }
+
+Special support is provided for scrolling modes when one uses a core-toolbar or equivalent
+for the header section.
+
+Example:
+
+    <core-header-panel>
+      <core-toolbar>Header</core-toolbar>
+      <div>Content goes here...</div>
+    </core-header-panel>
+
+If you want to use other than `core-toolbar` for the header, add 
+`core-header` class to that element.
+
+Example:
+
+    <core-header-panel>
+      <div class="core-header">Header</div>
+      <div>Content goes here...</div>
+    </core-header-panel>
+    
+To have the content fits to the main area, use `fit` attribute.
+
+    <core-header-panel>
+      <div class="core-header">standard</div>
+      <div class="content" fit>content fits 100% below the header</div>
+    </core-header-panel>
+
+Use `mode` to control the header and scrolling behavior.
+
+@group Polymer Core Elements
+@element core-header-panel
+@homepage github.io
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1 1 0.00000000001px;
+  -webkit-flex: 1 1 0.00000000001px;
+  flex: 1 1 0.00000000001px;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1 1 0.00000000001px;
+  -webkit-flex: 1 1 0.00000000001px;
+  flex: 1 1 0.00000000001px;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2 2 0.00000000001px;
+  -webkit-flex: 2 2 0.00000000001px;
+  flex: 2 2 0.00000000001px;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3 3 0.00000000001px;
+  -webkit-flex: 3 3 0.00000000001px;
+  flex: 3 3 0.00000000001px;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4 4 0.00000000001px;
+  -webkit-flex: 4 4 0.00000000001px;
+  flex: 4 4 0.00000000001px;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5 5 0.00000000001px;
+  -webkit-flex: 5 5 0.00000000001px;
+  flex: 5 5 0.00000000001px;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6 6 0.00000000001px;
+  -webkit-flex: 6 6 0.00000000001px;
+  flex: 6 6 0.00000000001px;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7 7 0.00000000001px;
+  -webkit-flex: 7 7 0.00000000001px;
+  flex: 7 7 0.00000000001px;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8 8 0.00000000001px;
+  -webkit-flex: 8 8 0.00000000001px;
+  flex: 8 8 0.00000000001px;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9 9 0.00000000001px;
+  -webkit-flex: 9 9 0.00000000001px;
+  flex: 9 9 0.00000000001px;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10 10 0.00000000001px;
+  -webkit-flex: 10 10 0.00000000001px;
+  flex: 10 10 0.00000000001px;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11 11 0.00000000001px;
+  -webkit-flex: 11 11 0.00000000001px;
+  flex: 11 11 0.00000000001px;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12 12 0.00000000001px;
+  -webkit-flex: 12 12 0.00000000001px;
+  flex: 12 12 0.00000000001px;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center], html /deep/ [layout][center-center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified], html /deep/ [layout][center-center] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+
+<script src="components/polymer/polymer.js"></script>
+<!--<link rel="import" href="../polymer-dev/polymer.html">--> 
+
+<polymer-element name="core-header-panel" assetpath="components/core-header-panel/">
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  position: relative;
+}
+
+#outerContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#mainPanel {
+  position: relative;
+}
+
+#mainContainer {
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#dropShadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+}
+
+#dropShadow.hidden {
+  display: none;
+}
+
+/* 
+mode: scroll 
+*/
+:host([mode=scroll]) #mainContainer {
+  overflow: visible;
+}
+
+/*
+mode: cover
+*/
+:host([mode=cover]) #mainPanel {
+  position: static;
+}
+
+:host([mode=cover]) #mainContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+:host([mode=cover]) #dropShadow {
+  position: static;
+  width: 100%;
+}
+</style>
+  
+  <div id="outerContainer" on-scroll="{{scroll}}" vertical="" layout="">
+
+    <content id="headerContent" select="core-toolbar, .core-header"></content>
+
+    <div id="mainPanel" flex="" vertical="" layout="">
+    
+      <div id="mainContainer" flex?="{{mode !== &apos;cover&apos;}}" on-scroll="{{scroll}}">
+        <content id="mainContent" select="*"></content>
+      </div>
+      
+      <div id="dropShadow"></div>
+      
+    </div>
+
+  </div>
+
+</template>
+
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+
+
+<!--
+The `core-field` supplies a horizontal layout, anticipating an input.
+
+Example:
+
+    <core-field>
+      <core-icon icon="menu"></core-icon>
+      <label>I'm a label!</label>
+      <input placeholder="I have a label" flex>
+    </core-field>
+
+@group Polymer Core Elements
+@element core-field
+@homepage github.io
+-->
+<polymer-element name="core-field" center="" horizontal="" layout="" assetpath="components/core-field/">
+<template>
+
+  <style>/* Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt */
+
+
+:host {
+  display: block;
+  color: #333;
+  font-size: 14px;
+}
+
+polyfill-next-selector { content: ':host > core-icon'; }
+::content > core-icon {
+  margin: 8px;
+}
+
+polyfill-next-selector { content: ':host input'; }
+::content input {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0 4px;
+  color: #333;
+  font-size: 14px;
+}
+
+polyfill-next-selector { content: ':host input:focus'; }
+::content input:focus {
+  outline: none;
+}
+
+polyfill-next-selector { content: ':host input::placeholder'; }
+::content input::placeholder {
+  color: #b3b3b3;
+}</style>
+
+  <content select="*"></content>
+
+</template>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-toolbar` is a horizontal bar containing elements that can be used for
+label, navigation, search and actions.
+
+    <core-toolbar>
+      <core-icon-button icon="menu" on-tap="{{menuAction}}"></core-icon-button>
+      <div flex>Title</div>
+      <core-icon-button icon="more" on-tap="{{moreAction}}"></core-icon-button>
+    </core-toolbar>
+
+`core-toolbar` has a standard height, but can made be taller by setting `tall`
+class on the `core-toolbar`.  This will make the toolbar 3x the normal height.
+
+    <core-toolbar class="tall">
+      <core-icon-button icon="menu"></core-icon-button>
+    </core-toolbar>
+    
+Apply `medium-tall` class to make the toolbar medium tall.  This will make the 
+toolbar 2x the normal height.
+
+    <core-toolbar class="medium-tall">
+      <core-icon-button icon="menu"></core-icon-button>
+    </core-toolbar>
+
+When taller, elements can pin to either the top (default), middle or bottom.
+
+    <core-toolbar class="tall">
+      <core-icon-button icon="menu"></core-icon-button>
+      <div class="middle indent">Middle Title</div>
+      <div class="bottom indent">Bottom Title</div>
+    </core-toolbar>
+    
+To make an element completely fit at the bottom of the toolbar, use `fit` along
+with `bottom`.
+
+    <core-toolbar class="tall">
+      <div id="progressBar" class="bottom fit"></div>
+    </core-toolbar>
+
+@group Polymer Core Elements
+@element core-toolbar
+@homepage github.io
+-->
+
+
+
+<polymer-element name="core-toolbar" assetpath="components/core-toolbar/">
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  /* technical */
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  /* size */
+  height: 64px;
+  /* typography */
+  font-size: 1.3em;
+  /* background */
+  background-color: #CFD8DC;
+}
+
+:host(.animate) {
+  /* transition */
+  transition: height 0.18s ease-in;
+}
+
+:host(.medium-tall) {
+  height: 128px;
+}
+
+:host(.tall) {
+  height: 192px;
+}
+
+.toolbar-tools {
+  position: relative;
+  height: 64px;
+  padding: 0 8px;
+  pointer-events: none;
+}
+
+/* narrow layout */
+:host(.narrow) {
+  height: 56px;
+}
+
+:host(.narrow.medium-tall) {
+  height: 112px;
+}
+
+:host(.narrow.tall) {
+  height: 168px;
+}
+
+:host(.narrow) .toolbar-tools {
+  height: 56px;
+  padding: 0;
+}
+
+/* middle bar */
+#middleBar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+:host(.tall, .medium-tall) #middleBar {
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+}
+
+/* bottom bar */
+#bottomBar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* make elements (e.g. buttons) respond to mouse/touch events */
+polyfill-next-selector { content: '.toolbar-tools > *'; }
+::content > * {
+  pointer-events: auto;
+}
+
+/* elements spacing */
+polyfill-next-selector { content: '.toolbar-tools > *'; }
+::content > * {
+  margin: 0px 8px;
+}
+
+/* misc helpers */
+polyfill-next-selector { content: '.toolbar-tools > .fit'; }
+::content > .fit {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  margin: 0;
+}
+
+polyfill-next-selector { content: ':host .indent'; }
+::content > .indent {
+  margin-left: 60px;
+}
+</style>
+
+  <div id="bottomBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content select=".bottom"></content>
+  </div>
+  
+  <div id="middleBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content select=".middle"></content>
+  </div>
+
+  <div id="topBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content></content>
+  </div>
+
+</template>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+@group Paper Elements
+
+`paper-button` is a button containing text or an image. When the user touches
+the button, a ripple effect emanates from the point of contact.
+
+A `paper-button` may be flat or raised. A raised button behaves like a piece
+of paper resting on another sheet, and lifts up upon press. Flat buttons do
+not raise up. Add the `raisedButton` attribute to make a raised button.
+
+Example:
+
+    <paper-button label="flat button"></paper-button>
+    <paper-button label="raised button" raisedButton></paper-button>
+
+A button should be styled with a background color, text color, ripple color
+and hover color.
+
+To style the background, text and hover color, apply the `background` and
+`color` CSS properties to the button. To style the ripple color, apply the
+`color` CSS property to the `#ripple` element in the button's shadow root:
+
+    /* Style #my-button blue with white text and darker blue ink. */
+    #my-button {
+        background: #4285f4;
+        color: #fff;
+    }
+
+    #my-button:hover {
+        background: #2a56c6;
+    }
+
+    #my-button::shadow #ripple {
+        color: #2a56c6;
+    }
+
+@element paper-button
+@extends paper-focusable
+-->
+
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+
+The `core-icon` element displays an icon. By default an icon renders as 24px square.
+
+Example using src:
+
+    <core-icon src="star.png"></core-icon>
+
+Example setting size to 32px x 32px:
+
+    <core-icon class="big" src="big_star.png"></core-icon>
+
+    <style>
+      .big {
+        height: 32px;
+        width: 32px;
+      }
+    </style>
+
+Example using icon from default iconset:
+
+    <core-icon icon="menu"></core-icon>
+
+Example using icon `cherry` from custom iconset `fruit`:
+
+    <core-icon icon="fruit:cherry"></core-icon>
+
+See [core-iconset](#core-iconset) and [core-iconset-svg](#core-iconset-svg) for more information about
+how to use a custom iconset.
+
+See [core-icons](http://www.polymer-project.org/components/core-icons/demo.html) for the default set of icons. To use the default set of icons you'll need to include an import for `core-icons.html`. To use a different built-in set of icons, you'll need to include an import for `core-icons/iconsets/<iconset>.html`.
+
+@group Polymer Core Elements
+@element core-icon
+@homepage polymer.github.io
+-->
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+/**
+ * @group Polymer Core Elements
+ *
+ * The `core-iconset` element allows users to define their own icon sets. 
+ * The `src` property specifies the url of the icon image. Multiple icons may
+ * be included in this image and they may be organized into rows.
+ * The `icons` property is a space separated list of names corresponding to the
+ * icons. The names must be ordered as the icons are ordered in the icon image.
+ * Icons are expected to be square and are the size specified by the `iconSize`
+ * property. The `width` property corresponds to the width of the icon image 
+ * and must be specified if icons are arranged into multiple rows in the image.
+ *
+ * All `core-iconset` elements are available for use by other `core-iconset`
+ * elements via a database keyed by id. Typically, an element author that wants
+ * to support a set of custom icons uses a `core-iconset` to retrieve 
+ * and use another, user-defined iconset.
+ *
+ * Example:
+ *
+ *     <core-iconset id="my-icons" src="my-icons.png" width="96" iconSize="24"
+ *         icons="location place starta stopb bus car train walk">
+ *     </core-iconset>
+ *
+ * This will automatically register the icon set "my-icons" to the iconset
+ * database.  To use these icons from within another element, make a 
+ * `core-iconset` element and call the `byId` method to retrieve a
+ * given iconset. To apply a particular icon to an element, use the 
+ * `applyIcon` method. For example:
+ *
+ *     iconset.applyIcon(iconNode, 'car');
+ *
+ * Themed icon sets are also supported. The `core-iconset` can contain child
+ * `property` elements that specify a theme with an offsetX and offsetY of the
+ * theme within the icon resource. For example.
+ *
+ *     <core-iconset id="my-icons" src="my-icons.png" width="96" iconSize="24"
+ *         icons="location place starta stopb bus car train walk">
+ *       <property theme="special" offsetX="256" offsetY="24"></property>
+ *     </core-iconset>
+ *
+ * Then a themed icon can be applied like this:
+ *
+ *     iconset.applyIcon(iconNode, 'car', 'special');
+ *
+ * @element core-iconset
+ * @extends core-meta
+ * @homepage github.io
+ */
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-meta` provides a method of constructing a self-organizing database.
+It is useful to collate element meta-data for things like catalogs and for 
+designer.
+
+Example, an element folder has a `metadata.html` file in it, that contains a 
+`core-meta`, something like this:
+
+    <core-meta id="my-element" label="My Element">
+      <property name="color" value="blue"></property>
+    </core-meta>
+
+An application can import as many of these files as it wants, and then use 
+`core-meta` again to access the collected data.
+
+    <script>
+      var meta = document.createElement('core-meta');
+      console.log(meta.list); // dump a list of all meta-data elements that have been created
+    </script>
+
+Use `byId(id)` to retrive a specific core-meta.
+
+    <script>
+      var meta = document.createElement('core-meta');
+      console.log(meta.byId('my-element'));
+    </script>
+
+By default all meta-data are stored in a single databse.  If your meta-data 
+have different types and want them to be stored separately, use `type` to 
+differentiate them.
+
+Example:
+
+    <core-meta id="x-foo" type="xElt"></core-meta>
+    <core-meta id="x-bar" type="xElt"></core-meta>
+    <core-meta id="y-bar" type="yElt"></core-meta>
+
+    <script>
+      var meta = document.createElement('core-meta');
+      meta.type = 'xElt';
+      console.log(meta.list);
+    </script>
+
+@group Polymer Core Elements
+@element core-meta
+@homepage github.io
+-->
+
+
+
+<polymer-element name="core-meta" attributes="label type" hidden assetpath="components/core-meta/">
+
+</polymer-element>
+
+
+<polymer-element name="core-iconset" extends="core-meta" attributes="src width icons iconSize" assetpath="components/core-iconset/">
+  
+  
+
+</polymer-element>
+
+
+<style shim-shadowdom="">/* Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt */
+
+html /deep/ core-icon {
+  display: inline-block;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  fill: currentcolor;
+  position: relative;
+  height: 24px;
+  width: 24px;
+}</style>
+
+<polymer-element name="core-icon" attributes="src icon alt" assetpath="components/core-icon/">
+
+
+</polymer-element>
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+/**
+ * @group Paper Elements
+ *
+ * paper-focusable is a base class for paper elements that can be focused.
+ *
+ * @element paper-focusable
+ * @status beta
+ * @homepage github.io
+ */
+-->
+
+
+
+<polymer-element name="paper-focusable" attributes="active focused disabled isToggle" tabindex="0" on-down="{{downAction}}" on-up="{{upAction}}" on-focus="{{focusAction}}" on-blur="{{blurAction}}" on-contextmenu="{{contextMenuAction}}" assetpath="components/paper-focusable/">
+
+  <template>
+    <style>
+      :host([disabled]) {
+        pointer-events: none;
+      }
+    </style>
+    <content></content>
+  </template>
+
+  
+</polymer-element>
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`paper-ripple` provides a visual effect that other paper elements can
+use to simulate a rippling effect emanating from the point of contact.  The
+effect can be visualized as a concentric circle with motion.
+
+Example:
+
+    <paper-ripple></paper-ripple>
+
+`paper-ripple` listens to "down" and "up" events so it would display ripple
+effect when touches on it.  You can also defeat the default behavior and 
+manually route the down and up actions to the ripple element.  Note that it is
+important if you call downAction() you will have to make sure to call upAction()
+so that `paper-ripple` would end the animation loop.
+
+Example:
+
+    <paper-ripple id="ripple" style="pointer-events: none;"></paper-ripple>
+    ...
+    downAction: function(e) {
+      this.$.ripple.downAction({x: e.x, y: e.y});
+    },
+    upAction: function(e) {
+      this.$.ripple.upAction();
+    }
+
+Styling ripple effect:
+
+  Use CSS color property to style the ripple:
+
+    paper-ripple {
+      color: #4285f4;
+    }
+
+  Note that CSS color property is inherited so it is not required to set it on
+  the `paper-ripple` element directly.
+
+Apply `recenteringTouch` class to make the recentering rippling effect.
+
+    <paper-ripple class="recenteringTouch"></paper-ripple>
+
+Apply `circle` class to make the rippling effect within a circle.
+
+    <paper-ripple class="circle"></paper-ripple>
+
+@group Paper Elements
+@element paper-ripple
+@homepage github.io
+-->
+
+
+
+<polymer-element name="paper-ripple" attributes="initialOpacity opacityDecayVelocity" assetpath="components/paper-ripple/">
+<template>
+
+  <style>
+
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    #canvas {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    :host(.circle) #canvas {
+      border-radius: 50%;
+    }
+
+  </style>
+
+</template>
+
+</polymer-element>
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+The `paper-shadow` element is a helper to add shadows to elements.
+Paper shadows are composed of two shadows on top of each other. We
+mimic this effect by using two elements on top of each other, each with a
+different drop shadow. You can apply the shadow to an element by assigning
+it as the target. If you do not specify a target, the shadow is applied to
+the `paper-shadow` element's parent element or shadow host element if its
+parent is a shadow root. Alternatively, you can use the CSS classes included
+by this element directly.
+
+Example:
+
+    <div id="myCard" class="card"></div>
+    <paper-shadow id="myShadow" z="1"></div>
+
+    // Assign a target explicitly
+    myShadow.target = document.getElementById('myCard');
+
+    // Auto-assign the target.
+    <div class="card">
+      <paper-shadow z="1"></paper-shadow>
+    </div>
+
+    // Use the classes directly
+    <div class="card paper-shadow-top paper-shadow-top-z-1">
+      <div class="card-inner paper-shadow-bottom paper-shadow-bottom-z-1"></div>
+    </div>
+
+If you assign a target to a `paper-shadow` element, it creates two nodes and inserts
+them as the first children of the target, or the first children of the target's shadow
+root if there is one. This implies:
+
+  1. If the primary node that drops the shadow has styling that affects its shape,
+     the same styling must be applied to elements with class `paper-shadow`.
+     `border-radius` is a very common property and is inherited automatically.
+
+  2. The target's overflow property will be set to `overflow: visible` because the
+     shadow is rendered beyond the bounds of its container. Position the shadow as a
+     separate layer and use a different child element for clipping if needed.
+
+@group Paper Elements
+@class paper-shadow
+-->
+
+
+
+<polymer-element name="paper-shadow" assetpath="components/paper-shadow/">
+
+  <template>
+
+    <style no-shim="">.paper-shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.paper-shadow-animated.paper-shadow {
+  transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.paper-shadow-top-z-1 {
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+}
+
+.paper-shadow-bottom-z-1 {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+}
+
+.paper-shadow-top-z-2 {
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.paper-shadow-bottom-z-2 {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+}
+
+.paper-shadow-top-z-3 {
+  box-shadow: 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+}
+
+.paper-shadow-bottom-z-3 {
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+
+.paper-shadow-top-z-4 {
+  box-shadow: 0 25px 55px 0 rgba(0, 0, 0, 0.21);
+}
+
+.paper-shadow-bottom-z-4 {
+  box-shadow: 0 16px 28px 0 rgba(0, 0, 0, 0.22);
+}
+
+.paper-shadow-top-z-5 {
+  box-shadow: 0 40px 77px 0 rgba(0, 0, 0, 0.22);
+}
+
+.paper-shadow-bottom-z-5 {
+  box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2);
+}
+
+.paper-shadow-animate-z-1-z-2.paper-shadow-top {
+  -webkit-transition: none;
+  -webkit-animation: animate-shadow-top-z-1-z-2 0.7s infinite alternate;
+}
+
+.paper-shadow-animate-z-1-z-2 .paper-shadow-bottom {
+  -webkit-transition: none;
+  -webkit-animation: animate-shadow-bottom-z-1-z-2 0.7s infinite alternate;
+}
+
+@-webkit-keyframes animate-shadow-top-z-1-z-2 {
+  0% {
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+  }
+  100% {
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+}
+
+@-webkit-keyframes animate-shadow-bottom-z-1-z-2 {
+  0% {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  }
+  100% {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+  }
+}</style>
+
+  </template>
+
+  
+</polymer-element>
+
+
+<polymer-element name="paper-button" extends="paper-focusable" attributes="label raisedButton iconSrc icon" role="button" assetpath="components/paper-button/">
+
+  <template>
+
+    <style>:host {
+  display: inline-block;
+  position: relative;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+  text-transform: uppercase;
+  outline: none;
+  border-radius: 3px;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+:host(.hover:hover) {
+  background: #e4e4e4;
+}
+
+:host([raisedButton]) {
+  background: #dfdfdf;
+}
+
+:host([raisedButton].hover:hover) {
+  background: #d6d6d6;
+}
+
+:host([disabled]) {
+  background: #eaeaea !important;
+  color: #a8a8a8 !important;
+  cursor: auto;
+}
+
+#shadow-container {
+  border-radius: inherit;
+}
+
+#clip {
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/*
+#focusBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  border-radius: inherit;
+  background: #c3c3c3;
+  -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:host([focused]) #focusBg {
+  -webkit-transition: none;
+  transition: none;
+  -webkit-animation: focus-fade 0.7s infinite alternate;
+  animation: focus-fade 0.7s infinite alternate;
+}
+
+@-webkit-keyframes focus-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes focus-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+*/
+
+#ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  color: #d1d1d1;
+  pointer-events: none;
+}
+
+:host([raisedButton]) #ripple {
+  color: #cecece;
+}
+
+#ripple::shadow canvas {
+  top: 0;
+  left: 0;
+}
+
+#content {
+  /* needed to position the ink behind the content */
+  position: relative;
+}
+
+#icon {
+  margin: 8px;
+}
+
+#content > span {
+  display: inline-block;
+  margin: 0.5em;
+}</style>
+
+    <template if="{{raisedButton}}">
+      <div fit="" id="shadow-container">
+        <paper-shadow id="shadow" z="{{z}}" animated=""></paper-shadow>
+      </div>
+    </template>
+
+    <div id="clip">
+      <!-- <div id="focusBg"></div> -->
+      <paper-ripple id="ripple"></paper-ripple>
+      <div id="content">
+        <template if="{{iconSrc || icon}}">
+          <core-icon id="icon" src="{{iconSrc}}" icon="{{icon}}"></core-icon>
+        </template>
+        <template if="{{label}}">
+          <span>{{label}}</span>
+        </template>
+      </div>
+    </div>
+
+  </template>
+
+  
+</polymer-element>
+</div>
+
+  </head>
+
+  <body>
+
+    <core-header-panel>
+      <core-toolbar id="label">Device disconnected</core-toolbar>
+      <section>
+        <core-field>
+          <label>Device ID</label>
+          <input placeholder="Device ID" flex="" id="device_id">
+        </core-field>
+        <core-field>
+          <label>Address</label>
+          <input placeholder="Address #1" flex="" id="address">
+        </core-field>
+        <paper-button id="query-button">Query Device</paper-button>
+      </section>
+    </core-header-panel>
+
+    <script src="Long.min.js"></script>
+    <script src="ByteBufferAB.min.js"></script>
+    <script src="ProtoBuf.noparse.min.js"></script>
+    <script src="messages_proto.js"></script>
+    <script src="window.js"></script>
+  <script src="window-build.js"></script></body>
+</html>

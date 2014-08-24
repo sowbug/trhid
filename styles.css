@@ -1,1 +1,64 @@
-/* CSS file placeholder. */
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: #eee;
+  font-family: roboto, helvetica, arial, sans-serif;
+}
+
+core-header-panel {
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+core-toolbar {
+  background: #03a9f4;
+  color: white;
+}
+
+core-field {
+  border: 1px solid #ddd;
+  margin: 10px;
+  padding-left: 4px;
+  height: 40px;
+}
+
+section {
+  padding: 30px 25px;
+}
+
+.container {
+  width: 80%;
+  margin: 50px auto;
+}
+
+#tabs {
+  width: 100%;
+  margin: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#query-button {
+  background: #4285f4;
+  color: #fff;
+}
+
+#query-button:hover {
+  background: #2a56c6;
+}
+
+#query-button::shadow #ripple {
+  color: #2a56c6;
+}
+
+@media (min-width: 481px) {
+  #tabs {
+    width: 200px;
+  }
+  .container {
+    width: 400px;
+  }
+}

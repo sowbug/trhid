@@ -4,6 +4,8 @@
   "short_name": "TrezorHID",
   "description": "Description for TrezorHID",
 
+  "minimum_chrome_version": "38",
+
   "version": "0.0.1.0",
 
   "icons": {
