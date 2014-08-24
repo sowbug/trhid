@@ -8,6 +8,7 @@ function getDevice() {
         if (!devices || devices.length == 0) {
           reject("No device found.");
         } else {
+          // TODO: handle multiple devices
           resolve(devices[0].deviceId);
         }
       });
@@ -147,7 +148,12 @@ function receiveMessage() {
 
 function disconnect() {
   return new Promise(function(resolve, reject) {
+    if (connectionId == null) {
+      resolve();
+      return;
+    }
     chrome.hid.disconnect(connectionId, function() {
+      connectionId = null;
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
       } else {
@@ -199,6 +205,7 @@ function queryFirstConnectedDevice() {
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);
+      disconnect();
     });
 }
 
