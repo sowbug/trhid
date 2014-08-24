@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "TrezorHID",
-  "short_name": "TrezorHID",
-  "description": "Description for TrezorHID",
+  "name": "Trezor Proof of Concept",
+  "short_name": "TrezorPOC",
+  "description": "Proof of concept of Chrome App that communicates with Trezor (not affiliated with Trezor manufacturer)",
 
   "minimum_chrome_version": "38",
 
