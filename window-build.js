@@ -1,3 +1,4 @@
+Polymer('core-field');;
 
 
   Polymer('core-header-panel', {
@@ -130,7 +131,6 @@
   });
 
 ;
-Polymer('core-field');;
 Polymer('core-toolbar');;
 
 

@@ -15,65 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <!--
-`core-header-panel` contains a header section and a content panel section.
-
-__Important:__ The `core-header-panel` will not display if its parent does not have a height.
-
-Using [layout attributes](http://www.polymer-project.org/docs/polymer/layout-attrs.html), you can easily make the `core-header-panel` fill the screen
-
-    <body fullbleed layout vertical>
-      <core-header-panel flex>
-        <core-toolbar>
-          <div>Hello World!</div>
-        </core-toolbar>
-      </core-header-panel>
-    </body>
-
-or, if you would prefer to do it in CSS, just give `html`, `body`, and `core-header-panel` a height of 100%:
-
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-    core-header-panel {
-      height: 100%;
-    }
-
-Special support is provided for scrolling modes when one uses a core-toolbar or equivalent
-for the header section.
-
-Example:
-
-    <core-header-panel>
-      <core-toolbar>Header</core-toolbar>
-      <div>Content goes here...</div>
-    </core-header-panel>
-
-If you want to use other than `core-toolbar` for the header, add 
-`core-header` class to that element.
-
-Example:
-
-    <core-header-panel>
-      <div class="core-header">Header</div>
-      <div>Content goes here...</div>
-    </core-header-panel>
-    
-To have the content fits to the main area, use `fit` attribute.
-
-    <core-header-panel>
-      <div class="core-header">standard</div>
-      <div class="content" fit>content fits 100% below the header</div>
-    </core-header-panel>
-
-Use `mode` to control the header and scrolling behavior.
-
-@group Polymer Core Elements
-@element core-header-panel
-@homepage github.io
--->
-
-<!--
 Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
 The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
@@ -364,6 +305,138 @@ html /deep/ [segment], html /deep/ segment {
 <script src="components/polymer/polymer.js"></script>
 <!--<link rel="import" href="../polymer-dev/polymer.html">--> 
 
+<!--
+The `core-field` supplies a horizontal layout, anticipating an input.
+
+Example:
+
+    <core-field>
+      <core-icon icon="menu"></core-icon>
+      <label>I'm a label!</label>
+      <input placeholder="I have a label" flex>
+    </core-field>
+
+@group Polymer Core Elements
+@element core-field
+@homepage github.io
+-->
+<polymer-element name="core-field" center="" horizontal="" layout="" assetpath="components/core-field/">
+<template>
+
+  <style>/* Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt */
+
+
+:host {
+  display: block;
+  color: #333;
+  font-size: 14px;
+}
+
+polyfill-next-selector { content: ':host > core-icon'; }
+::content > core-icon {
+  margin: 8px;
+}
+
+polyfill-next-selector { content: ':host input'; }
+::content input {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0 4px;
+  color: #333;
+  font-size: 14px;
+}
+
+polyfill-next-selector { content: ':host input:focus'; }
+::content input:focus {
+  outline: none;
+}
+
+polyfill-next-selector { content: ':host input::placeholder'; }
+::content input::placeholder {
+  color: #b3b3b3;
+}</style>
+
+  <content select="*"></content>
+
+</template>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-header-panel` contains a header section and a content panel section.
+
+__Important:__ The `core-header-panel` will not display if its parent does not have a height.
+
+Using [layout attributes](http://www.polymer-project.org/docs/polymer/layout-attrs.html), you can easily make the `core-header-panel` fill the screen
+
+    <body fullbleed layout vertical>
+      <core-header-panel flex>
+        <core-toolbar>
+          <div>Hello World!</div>
+        </core-toolbar>
+      </core-header-panel>
+    </body>
+
+or, if you would prefer to do it in CSS, just give `html`, `body`, and `core-header-panel` a height of 100%:
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    core-header-panel {
+      height: 100%;
+    }
+
+Special support is provided for scrolling modes when one uses a core-toolbar or equivalent
+for the header section.
+
+Example:
+
+    <core-header-panel>
+      <core-toolbar>Header</core-toolbar>
+      <div>Content goes here...</div>
+    </core-header-panel>
+
+If you want to use other than `core-toolbar` for the header, add 
+`core-header` class to that element.
+
+Example:
+
+    <core-header-panel>
+      <div class="core-header">Header</div>
+      <div>Content goes here...</div>
+    </core-header-panel>
+    
+To have the content fits to the main area, use `fit` attribute.
+
+    <core-header-panel>
+      <div class="core-header">standard</div>
+      <div class="content" fit>content fits 100% below the header</div>
+    </core-header-panel>
+
+Use `mode` to control the header and scrolling behavior.
+
+@group Polymer Core Elements
+@element core-header-panel
+@homepage github.io
+-->
+
+
+
 <polymer-element name="core-header-panel" assetpath="components/core-header-panel/">
 <template>
 
@@ -462,79 +535,6 @@ mode: cover
 
 </template>
 
-</polymer-element>
-</div>
-    <div hidden><!--
-Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
-
-
-<!--
-The `core-field` supplies a horizontal layout, anticipating an input.
-
-Example:
-
-    <core-field>
-      <core-icon icon="menu"></core-icon>
-      <label>I'm a label!</label>
-      <input placeholder="I have a label" flex>
-    </core-field>
-
-@group Polymer Core Elements
-@element core-field
-@homepage github.io
--->
-<polymer-element name="core-field" center="" horizontal="" layout="" assetpath="components/core-field/">
-<template>
-
-  <style>/* Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt */
-
-
-:host {
-  display: block;
-  color: #333;
-  font-size: 14px;
-}
-
-polyfill-next-selector { content: ':host > core-icon'; }
-::content > core-icon {
-  margin: 8px;
-}
-
-polyfill-next-selector { content: ':host input'; }
-::content input {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  margin: 0 4px;
-  color: #333;
-  font-size: 14px;
-}
-
-polyfill-next-selector { content: ':host input:focus'; }
-::content input:focus {
-  outline: none;
-}
-
-polyfill-next-selector { content: ':host input::placeholder'; }
-::content input::placeholder {
-  color: #b3b3b3;
-}</style>
-
-  <content select="*"></content>
-
-</template>
 </polymer-element>
 </div>
     <div hidden><!--
@@ -1393,7 +1393,7 @@ root if there is one. This implies:
   <body>
 
     <core-header-panel>
-      <core-toolbar id="label">Device disconnected</core-toolbar>
+      <core-toolbar id="label"></core-toolbar>
       <section>
         <core-field>
           <label>Device ID</label>
