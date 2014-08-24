@@ -8,7 +8,9 @@
   <body>
     <h3 id="label"></h3>
     <div>Device ID: <span id="device_id"></span></div>
-    <div>First Address: <span id="address"></span></div>
+    <div>First Account's First Receiving Address:
+         <span id="address"></span></div>
+    <div>First Account xpub Key: <span id="xpub"></span></div>
 
     <button id="query">Query Device</button>
 
@@ -16,6 +18,8 @@
     <script src="ByteBufferAB.min.js"></script>
     <script src="ProtoBuf.noparse.min.js"></script>
     <script src="messages_proto.js"></script>
+    <script src="buffer.min.js"></script>
+    <script src="bitcoinjs.min.js"></script>
     <script src="window.js"></script>
   </body>
 </html>
