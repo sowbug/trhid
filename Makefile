@@ -36,15 +36,14 @@ all: $(ZIP)
 
 $(ZIP): force_look
 	mkdir -p $(ZIPBASE)
-	vulcanize -o window-build.html window.html --csp
 	cp -R *.html *.js *.css *.json components assets $(ZIPBASE)
-	rm $(ZIPBASE)/window.html
-	rm $(ZIPBASE)/window.js
+	vulcanize -o $(ZIPBASE)/window-build.html window.html --csp
 	sed -i'' -e "s/PRODUCTNAME/${PRODUCTNAME}/" $(ZIPBASE)/manifest.json
 	sed -i'' -e "s/MAJOR/${MAJOR}/" $(ZIPBASE)/manifest.json
 	sed -i'' -e "s/MINOR/${MINOR}/" $(ZIPBASE)/manifest.json
 	sed -i'' -e "s/BUILD/${BUILD}/" $(ZIPBASE)/manifest.json
 	sed -i'' -e "s/PATCH/${PATCH}/" $(ZIPBASE)/manifest.json
+	rm $(ZIPBASE)/window.html
 	rm $(ZIPBASE)/manifest.json-e
 	rm -rf $(OUTBASE)/$(ZIP)
 	cd $(ZIPBASE); zip -r $(OUTBASE)/$(ZIP) .
