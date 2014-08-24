@@ -1,4 +1,26 @@
 var connectionId;
+var HARDEN = 0x80000000;
+
+function processPubkey(pubkey) {
+  if (pubkey.xpub != null) {
+    // As of August 10 firmwares and onward
+    return pubkey.xpub;
+  }
+  // Otherwise we have to do a lot of work.
+  var node = pubkey.node;
+  var buf = new Buffer.Buffer(78 - 33 - 32);
+  buf.writeUInt32BE(0x0488B21E, 0);
+  buf.writeUInt8(node.depth, 4);
+  buf.writeUInt32BE(node.fingerprint, 5);
+  buf.writeUInt32BE(node.child_num, 9);
+  buf = Buffer.Buffer.concat(
+    [buf,
+     new Buffer.Buffer(new Uint8Array(node.chain_code.toBuffer())),
+     new Buffer.Buffer(new Uint8Array(node.public_key.toBuffer()))],
+    78);
+  hdnode = Bitcoin.HDNode.fromBuffer(buf);
+  return hdnode.toBase58();
+}
 
 function getDevice() {
   return new Promise(function(resolve, reject) {
@@ -198,12 +220,22 @@ clearFields();
       return send(
         63,
         serializeMessageForTransport(new _root.GetAddress(
-          [0x80000000 | 44, 0x80000000, 0x80000000, 0, 0]), 29));
+          [HARDEN | 44, HARDEN | 0, HARDEN | 0, 0, 0]), 29));
     }).then(function() {
       return receiveMessage();
     }).then(function(message) {
       var address = _root.Address.decode(message);
       document.querySelector("#address").value = address.address;
+      return send(
+        63,
+        serializeMessageForTransport(new _root.GetPublicKey(
+          [HARDEN | 44, HARDEN | 0, HARDEN | 0]), 11));
+    }).then(function() {
+      return receiveMessage();
+    }).then(function(message) {
+      var pubkey = _root.PublicKey.decode(message);
+      var xpub = processPubkey(pubkey);
+      document.querySelector("#xpub").value = xpub;
       return disconnect();
     }).catch(function(reason) {
       console.error(reason);

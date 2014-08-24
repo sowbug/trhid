@@ -25,6 +25,10 @@
           <label>Address</label>
           <input placeholder="Address #1" flex id="address">
         </core-field>
+        <core-field>
+          <label>Address xpub</label>
+          <input placeholder="Address #1's xpub" flex id="xpub">
+        </core-field>
         <paper-button id="query-button">Query Device</paper-button>
       </section>
     </core-header-panel>
@@ -33,6 +37,8 @@
     <script src="ByteBufferAB.min.js"></script>
     <script src="ProtoBuf.noparse.min.js"></script>
     <script src="messages_proto.js"></script>
+    <script src="buffer.min.js"></script>
+    <script src="bitcoinjs.min.js"></script>
     <script src="window.js"></script>
   </body>
 </html>
