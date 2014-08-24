@@ -4,7 +4,7 @@
   "short_name": "TrezorPOC",
   "description": "Proof of concept of Chrome App that communicates with Trezor (not affiliated with Trezor manufacturer)",
 
-  "minimum_chrome_version": "38",
+  "minimum_chrome_version": "38.0.2125.7",
 
   "version": "0.0.1.0",
 
