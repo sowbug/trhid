@@ -174,6 +174,8 @@ function queryFirstConnectedDevice() {
   var ProtoBuf = dcodeIO.ProtoBuf;
   var builder = ProtoBuf.newBuilder();
 
+clearFields();
+
   getDevice()
     .then(function(deviceId) {
       return connect(deviceId);
@@ -214,6 +216,5 @@ window.onload = function() {
     "click",
     queryFirstConnectedDevice);
 
-  clearFields();
   queryFirstConnectedDevice();
 };
