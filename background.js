@@ -8,7 +8,7 @@ chrome.app.runtime.onLaunched.addListener(function() {
   chrome.app.window.create(
     "window-build.html",
     {
-      id: "trhid-window",
+      id: "tpoc-window",
       outerBounds: { minWidth: 800, minHeight: 480 }
     }
   );
