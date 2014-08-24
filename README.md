@@ -2,7 +2,7 @@ trhid
 =====
 
 Proof-of-concept Chrome App for Trezor. Not affiliated with Trezor
-manufacturer.
+manufacturer. [Install from Chrome Web Store](https://chrome.google.com/webstore/detail/iojmjipbdhdcblpfabobpdohcakbelnh).
 
 Development requirements
 ===
